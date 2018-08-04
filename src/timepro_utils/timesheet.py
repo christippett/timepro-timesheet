@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from dateutil.parser import parse as dateparser
 
-from .utils import generate_date_series
+from .utils import generate_date_series, convert_keys_to_dates
 
 
 class Timesheet:
@@ -29,6 +29,7 @@ class Timesheet:
         if html:
             self._form_data = self.extract_form_data_from_html(html)
         if data:
+            data = convert_keys_to_dates(data)
             self._form_data = self.extract_form_data_from_dict(data)
 
     def lookup_customer(self, customer):

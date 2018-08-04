@@ -1,4 +1,6 @@
-from datetime import timedelta
+from datetime import timedelta, date, datetime
+
+from dateutil.parser import parse as dateparser
 
 
 def generate_date_series(start_date, end_date):
@@ -7,3 +9,13 @@ def generate_date_series(start_date, end_date):
     """
     days_diff = (end_date - start_date).days
     return [start_date + timedelta(days=x) for x in range(0, days_diff + 1)]
+
+
+def convert_keys_to_dates(data):
+    converted_data = {}
+    for k, d in data.items():
+        key = k
+        if not isinstance(key, date) and not isinstance(key, datetime):
+            key = dateparser(key)
+        converted_data[key] = d
+    return converted_data
