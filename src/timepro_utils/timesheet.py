@@ -41,7 +41,7 @@ class Timesheet:
     def lookup_project(self, project):
         search_key = 'project_psid' if '{:}' in project else 'project_code'
         projects = [p for p in self._project_options if p[search_key] == project]
-        return projects[0] if project else {}
+        return projects[0] if projects else {}
 
     def lookup_task(self, task):
         tasks = [t for t in self._task_options if t['task_id'] == task]
