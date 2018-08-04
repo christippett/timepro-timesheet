@@ -48,7 +48,7 @@ class TimesheetCLI:
         get_parameters.add_argument('--last-month', dest='last_month', action='store_true', help="Get last month's timesheet")
 
         # If Saturday or Sunday, treat "last week" as the week just been
-        week_offset = 1 if TODAY.weekday() > 5 else 0
+        week_offset = 1 if TODAY.weekday() >= 5 else 0
 
         args = parser.parse_args(arg_options)
         if args.start_date and args.end_date:
@@ -62,11 +62,10 @@ class TimesheetCLI:
             end_date = TODAY + relativedelta(day=31, months=-1)
         elif args.current_week:
             start_date = TODAY + relativedelta(weekday=MO(-1), weeks=week_offset)
-            end_date = TODAY + relativedelta(weekday=FR, weeks=week_offset)
+            end_date = start_date + relativedelta(weekday=FR)
         elif args.last_week:
-            week_offset -= 1
-            start_date = TODAY + relativedelta(weekday=MO(-1), weeks=week_offset)
-            end_date = TODAY + relativedelta(weekday=FR, weeks=week_offset)
+            start_date = TODAY + relativedelta(weekday=MO(-1), weeks=week_offset - 1)
+            end_date = start_date + relativedelta(weekday=FR)
         else:
             # default to get this week's timesheet (excl. previous month)
             start_date = max([

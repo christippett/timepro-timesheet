@@ -28,4 +28,4 @@ jobs:
         on:
           tags: true # only deploy on tagged commits
           branch: master
-          repo: christippett/timepro-utils
+          repo: christippett/timepro-timesheet

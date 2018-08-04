@@ -1,6 +1,6 @@
 import pytest
 
-from timepro_utils.timesheet import Timesheet
+from timepro_timesheet.timesheet import Timesheet
 
 
 def test_placeholder():

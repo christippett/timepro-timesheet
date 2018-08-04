@@ -10,20 +10,20 @@ INSTALL_REQUIRES = [
 ]
 
 setup(
-    name='timepro-utils',
+    name='timepro-timesheet',
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     description='Utility for programmatically getting and submitting data to Intertec TimePro (timesheets.com.au)',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
-    url='http://github.com/christippett/timepro-utils',
+    url='http://github.com/christippett/timepro-timesheet',
     author='Chris Tippett',
     author_email='c.tippett@gmail.com',
     license='MIT',
     package_dir={'': 'src'},
     packages=find_packages('src'),
     entry_points = {
-        'console_scripts': ['timepro=timepro_utils.cli:main'],
+        'console_scripts': ['timepro=timepro_timesheet.cli:main'],
     },
     install_requires=INSTALL_REQUIRES,
     classifiers=[

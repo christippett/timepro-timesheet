@@ -19,7 +19,7 @@ Installation
 Install with `pip`:
 
 ``` bash
-pip install timepro-utils
+pip install timepro-timesheet
 ```
 
 Usage
@@ -70,7 +70,7 @@ Python
 ------
 
 ``` python
-from timepro_utils.api import TimesheetAPI
+from timepro_timesheet.api import TimesheetAPI
 
 # Log into timesheets.com.au via the TimesheetAPI class
 api = TimesheetAPI()
