@@ -146,7 +146,7 @@ class Timesheet:
             html.xpath(self.FORM_XPATH_TASKS),
             html.xpath(self.FORM_XPATH_DESCRIPTIONS)
         )
-        data = {}
+        form_data = {}
 
         # Construct data dictionary
         for el in data_elements:
@@ -157,24 +157,24 @@ class Timesheet:
                 value = option.attrs.get('value') if option else ''
             else:
                 value = el.attrs.get('value')
-            data[name] = value
+            form_data[name] = value
 
         # Customer form elements aren't present in read-only timesheet, we need to lookup `customer_code` from project
-        for k, v in data.copy().items():
+        for k, v in form_data.copy().items():
             m = re.match(self.TIMESHEET_FIELD_PATTERN, k)
             if not m:
                 continue
             entry_type, row_id, column_id = m.groups()
             if entry_type == 'Project':
                 customer_key = 'Customer_{}_{}'.format(row_id, column_id)
-                if customer_key not in data:
+                if customer_key not in form_data:
                     customer = self.lookup_project(v)
-                    data[customer_key] = customer['customer_code'] if customer else ''
+                    form_data[customer_key] = customer['customer_code'] if customer else ''
             elif entry_type == 'FinishTime':
                 # Read-only timesheet can contain extra empty rows that do not need to be included
                 if input_rows and int(row_id) > input_rows:
-                    data.pop(k)
-        return data
+                    form_data.pop(k)
+        return form_data
 
     def date_entries(self):
         """
