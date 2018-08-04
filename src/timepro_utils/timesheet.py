@@ -6,6 +6,8 @@ from datetime import timedelta
 
 from dateutil.parser import parse as dateparser
 
+from .utils import generate_date_series
+
 
 class Timesheet:
     FORM_XPATH_INPUT_ROWS = '//input[@name="InputRows"]'
@@ -209,8 +211,7 @@ class Timesheet:
         # Generate range of dates from start to end date
         start_date = dateparser(form_data['StartDate'])
         end_date = dateparser(form_data['EndDate'])
-        days_diff = (end_date - start_date).days
-        timesheet_dates = [start_date + timedelta(days=x) for x in range(0, days_diff + 1)]
+        timesheet_dates = generate_date_series(start_date, end_date)
 
         # Match dates in timesheet period with ordinal index from `date_entries`
         d = {}
