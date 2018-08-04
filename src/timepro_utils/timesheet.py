@@ -67,7 +67,9 @@ class Timesheet:
             elif entry_type == 'Task':
                 entry['task'] = v
             elif entry_type == 'Description':
-                entry['description'] = v
+                descriptions = entry.get('descriptions', [])
+                descriptions.append((column_id, v))
+                entry['descriptions'] = descriptions
             elif entry_type == 'FinishTime':
                 times = entry.get('times', [])
                 hours = float(v) if v != '' else 0
@@ -79,14 +81,19 @@ class Timesheet:
             customer = entries[k].get('customer', '')
             project = entries[k].get('project', '')
             times = entries[k].get('times', [])
+            descriptions = entries[k].get('descriptions', [])
             if times:
                 sorted_times = sorted(times, key=lambda t: t[0])
                 times = [t[1] for t in sorted_times]
+            if descriptions:
+                sorted_descriptions = sorted(descriptions, key=lambda t: t[0])
+                descriptions = [t[1] for t in sorted_descriptions]
             # Remove rows with no data
             if (customer == '' and project == '') or sum(times) == 0:
                 entries.pop(k)
                 continue
             entries[k]['times'] = times
+            entries[k]['descriptions'] = descriptions
         return entries
 
     def count_entries(self):
@@ -129,11 +136,10 @@ class Timesheet:
                 customer = e.get('customer_code')
                 project = e.get('project_psid')
                 task = e.get('task_id') or ''
-                description = e.get('description') or ''
-                unique_entries.add('{}|{}|{}|{}'.format(customer, project, task, description))
+                unique_entries.add('{}|{}|{}'.format(customer, project, task))
 
         # Use lambda to create default entry to avoid later referencing same object
-        default_entry = lambda: dict(customer='', project='', task='', times=[])
+        default_entry = lambda: dict(customer='', project='', task='', times=[], descriptions=[])
         row_entries = dict((e, default_entry()) for e in unique_entries)
 
         # Generate range of dates from start to end date (to account for any missing dates in between)
@@ -147,16 +153,18 @@ class Timesheet:
             for key, entry in row_entries.items():
                 # Sum all hours for a single date for the same customer/project/task
                 hours = []
+                descriptions = []
                 for e in date_entries:
-                    entry_key = '{}|{}|{}|{}'.format(
+                    entry_key = '{}|{}|{}'.format(
                         e.get('customer_code'),
                         e.get('project_psid'),
-                        e.get('task_id') or '',
-                        e.get('description') or '')
+                        e.get('task_id') or '')
                     if entry_key == key:
-                        hours.append(e['hours'])
+                        hours.append(e.get('hours', 0))
+                        descriptions.append(e.get('description', ''))
                 entry['times'].append(sum(hours))
-                entry['customer'], entry['project'], entry['task'], entry['description'] = key.split('|')  # populate row info
+                entry['descriptions'].append('; '.join(descriptions))
+                entry['customer'], entry['project'], entry['task'] = key.split('|')  # populate row info
 
         # Replace key with row number
         row_entries = dict((i, v[1]) for i, v in enumerate(row_entries.items()))
@@ -170,12 +178,14 @@ class Timesheet:
             form_data.update({
                 f.format('CustomerCode', row_id, 0): entry.get('customer') or '',
                 f.format('Project', row_id, 0): entry.get('project') or '',
-                f.format('Task', row_id, 0): entry.get('task') or '',
-                f.format('Description', row_id, 0): entry.get('description') or ''
+                f.format('Task', row_id, 0): entry.get('task') or ''
             })
-            for column_id, hour in enumerate(entry.get('times', [])):
+            for column_id in range(0, len(entry['times'])):
+                hours = entry.get('times')[column_id]
+                description = entry.get('descriptions')[column_id]
                 form_data.update({
-                    f.format('FinishTime', row_id, column_id): hour if hour > 0 else ''
+                    f.format('FinishTime', row_id, column_id): hours if hours > 0 else '',
+                    f.format('Description', row_id, column_id): description
                 })
         return form_data
 
@@ -246,7 +256,7 @@ class Timesheet:
             row_entry = self.row_entries().get(row_id)
             entry = {
                 'hours': float(v) if v != '' else 0,
-                'description': row_entry.get('description')
+                'description': row_entry.get('descriptions')[column_id]
             }
 
             # Lookup customer/project/task details
