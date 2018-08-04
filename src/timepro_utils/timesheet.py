@@ -245,12 +245,17 @@ class Timesheet:
             row_id, column_id = int(row_id), int(column_id)
             date_entries = dates.get(column_id, [])
 
-            # Lookup row details
+            # Lookup row
             row_entry = self.row_entries().get(row_id)
+            entry = {
+                'hours': float(v) if v != '' else 0,
+                'description': row_entry.get('description')
+            }
+
+            # Lookup customer/project/task details
             customer = self.lookup_customer(row_entry.get('customer'))
             project = self.lookup_project(row_entry.get('project'))
             task = self.lookup_task(row_entry.get('task'))
-            entry = { 'hours': float(v) if v != '' else 0 }
             entry.update(customer)
             entry.update(project)
             entry.update(task)
