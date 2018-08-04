@@ -51,7 +51,7 @@ class Timesheet:
         """
         Construct dictionary of timesheet entries, with row numbers as keys.
         """
-        entries = OrderedDict()
+        entries = {}
         for k, v in self._form_data.items():
             m = re.match(self.TIMESHEET_FIELD_PATTERN, k)
             if not m:
