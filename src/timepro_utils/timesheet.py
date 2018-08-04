@@ -68,6 +68,8 @@ class Timesheet:
             elif entry_type == 'Task':
                 entry['task'] = v
             elif entry_type == 'Description':
+                # TODO: Add descriptions to OrderedDict instead,
+                # zip with hours to ensure a complete list
                 descriptions = entry.get('descriptions', [])
                 descriptions.append((column_id, v))
                 entry['descriptions'] = descriptions
@@ -255,10 +257,13 @@ class Timesheet:
 
             # Lookup row
             row_entry = self.row_entries().get(row_id)
-            entry = {
-                'hours': float(v) if v != '' else 0,
-                'description': row_entry.get('descriptions')[column_id]
-            }
+
+            entry = {'hours': float(v) if v != '' else 0}
+
+            # Check description list is populated (missing/empty when reading historical timesheets)
+            descriptions = row_entry.get('descriptions')
+            if descriptions:
+                entry.update({'description': descriptions[column_id]})
 
             # Lookup customer/project/task details
             customer = self.lookup_customer(row_entry.get('customer'))
