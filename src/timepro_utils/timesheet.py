@@ -136,14 +136,15 @@ class Timesheet:
         return data
 
     def extract_form_data_from_dict(self, data):
-        # Get unique customer/project/task entries, these will become our rows
+        # Get unique customer/project/task/description entries, these will become our rows
         unique_entries = set()
         for _, entries in data.items():
             for e in entries:
                 customer = e.get('customer_code')
                 project = e.get('project_psid')
                 task = e.get('task_id') or ''
-                unique_entries.add('{}|{}|{}'.format(customer, project, task))
+                description = e.get('description') or ''
+                unique_entries.add('{}|{}|{}|{}'.format(customer, project, task, description))
 
         # Use lambda to create default entry to avoid later referencing same object
         default_entry = lambda: dict(customer='', project='', task='', times=[])
@@ -159,11 +160,17 @@ class Timesheet:
             date_entries = data.get(dt, [])  # list of entries for the given date
             for key, entry in row_entries.items():
                 # Sum all hours for a single date for the same customer/project/task
-                hours = sum(
-                    [e['hours'] for e in date_entries if '{}|{}|{}'.format(e.get('customer_code'), e.get('project_psid'), e.get('task_id') or '') == key]
-                )
-                entry['times'].append(hours)
-                entry['customer'], entry['project'], entry['task'] = key.split('|')  # populate row keys
+                hours = []
+                for e in date_entries:
+                    entry_key = '{}|{}|{}|{}'.format(
+                        e.get('customer_code'),
+                        e.get('project_psid'),
+                        e.get('task_id') or '',
+                        e.get('description') or '')
+                    if entry_key == key:
+                        hours.append(e['hours'])
+                entry['times'].append(sum(hours))
+                entry['customer'], entry['project'], entry['task'], entry['description'] = key.split('|')  # populate row info
 
         # Replace key with row number
         row_entries = dict((i, v[1]) for i, v in enumerate(row_entries.items()))
@@ -174,7 +181,8 @@ class Timesheet:
             form_data.update({
                 f.format('CustomerCode', row_id, 0): entry.get('customer') or '',
                 f.format('Project', row_id, 0): entry.get('project') or '',
-                f.format('Task', row_id, 0): entry.get('task') or ''
+                f.format('Task', row_id, 0): entry.get('task') or '',
+                f.format('Description', row_id, 0): entry.get('description') or ''
             })
             for column_id, hour in enumerate(entry.get('times', [])):
                 form_data.update({
