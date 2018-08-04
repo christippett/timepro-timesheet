@@ -20,13 +20,13 @@ class Timesheet:
     FORM_XPATH_DESCRIPTIONS = '//*[contains(@name, "Description_")]'
     TIMESHEET_FIELD_PATTERN = r'^(?P<entry_type>\w+)_(?P<row_id>\d+)_(?P<column_id>\d+)$'
 
-    def __init__(self, customer_options, project_options, task_options, staff_id, user_context_id,
+    def __init__(self, staff_id, user_context_id, customer_options=None, project_options=None, task_options=None,
                  html=None, data=None):
         self.staff_id = staff_id
         self.user_context_id = user_context_id
-        self._customer_options = customer_options
-        self._project_options = project_options
-        self._task_options = task_options
+        self._customer_options = customer_options or []
+        self._project_options = project_options or []
+        self._task_options = task_options or []
         self._form_data = {}
         self._html = html
         if html:
