@@ -60,13 +60,13 @@ class TimesheetCLI:
             ])
             end_date = TODAY + relativedelta(weekday=FR)
         date_kwargs = dict(start_date=start_date, end_date=end_date)
-        # api = TimesheetAPI()
-        # api.login(
-        #     customer_id=args.customer_id,
-        #     username=args.username,
-        #     password=args.password)
-        # timesheet = api.get_timesheet(**date_kwargs)
-        # print(timesheet.json())
+        api = TimesheetAPI()
+        api.login(
+            customer_id=args.customer_id,
+            username=args.username,
+            password=args.password)
+        timesheet = api.get_timesheet(**date_kwargs)
+        print(timesheet.json())
 
 
 if __name__ == '__main__':
