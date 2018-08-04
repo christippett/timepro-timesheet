@@ -42,18 +42,31 @@ class TimesheetCLI:
         get_parameters = parser.add_argument_group('filter options')
         get_parameters.add_argument('--start', dest='start_date', metavar='START_DATE', help='Start date of timesheet period')
         get_parameters.add_argument('--end', dest='end_date', metavar='END_DATE', help='End date of timesheet period')
-        get_parameters.add_argument('--week', dest='get_week', action='store_true', help="Get current week's timesheet")
-        get_parameters.add_argument('--month', dest='get_month', action='store_true', help="Get current month's timesheet")
+        get_parameters.add_argument('--current-week', dest='current_week', action='store_true', help="Get current week's timesheet")
+        get_parameters.add_argument('--current-month', dest='current_month', action='store_true', help="Get current month's timesheet")
+        get_parameters.add_argument('--last-week', dest='last_week', action='store_true', help="Get last week's timesheet")
+        get_parameters.add_argument('--last-month', dest='last_month', action='store_true', help="Get last month's timesheet")
+
+        # If Saturday or Sunday, treat "last week" as the week just been
+        week_offset = 1 if TODAY.weekday() > 5 else 0
+
         args = parser.parse_args(arg_options)
         if args.start_date and args.end_date:
             start_date = dateparser(args.start_date)
             end_date = dateparser(args.end_date)
-        elif args.get_month:
+        elif args.current_month:
             start_date = TODAY + relativedelta(day=1)
             end_date = TODAY + relativedelta(day=31)
-        elif args.get_week:
-            start_date = TODAY + relativedelta(weekday=MO(-1))
-            end_date = TODAY + relativedelta(weekday=FR)
+        elif args.last_month:
+            start_date = TODAY + relativedelta(day=1, months=-1)
+            end_date = TODAY + relativedelta(day=31, months=-1)
+        elif args.current_week:
+            start_date = TODAY + relativedelta(weekday=MO(-1), weeks=week_offset)
+            end_date = TODAY + relativedelta(weekday=FR, weeks=week_offset)
+        elif args.last_week:
+            week_offset -= 1
+            start_date = TODAY + relativedelta(weekday=MO(-1), weeks=week_offset)
+            end_date = TODAY + relativedelta(weekday=FR, weeks=week_offset)
         else:
             # default to get this week's timesheet (excl. previous month)
             start_date = max([
