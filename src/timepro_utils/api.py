@@ -7,7 +7,11 @@ from requests_html import HTMLSession
 from .timesheet import Timesheet
 
 
-class LoginException(Exception):
+class LoginError(Exception):
+    pass
+
+
+class WebsiteError(Exception):
     pass
 
 
@@ -88,19 +92,19 @@ class TimesheetAPI:
         error_table = r.html.xpath('//a[@name="ErrorTable"]/following-sibling::table', first=True)
         if error_table:
             errors = self._parse_html_login_errors(error_table)
-            raise LoginException(' '.join(errors))
+            raise LoginError(' '.join(errors))
 
         # Detect rejected logon
         rejected_login_input = r.html.find('input[name="RejectedLogon"]')
         if rejected_login_input:
-            raise LoginException('Invalid login credentials.')
+            raise LoginError('Invalid login credentials.')
 
         # Find UserContextID (required for future session requests)
         user_context_input = r.html.find('input[name="UserContextID"]', first=True)
         if user_context_input:
             self.user_context_id = user_context_input.attrs.get('value')
         else:
-            raise LoginException('UserContextID not found in login response.')
+            raise LoginError('UserContextID not found in login response.')
 
         # Load ViewTimesheet page to get StaffID
         r = self.session.post(self.VIEW_TIMESHEET_URL, data={
@@ -110,12 +114,12 @@ class TimesheetAPI:
         if staff_id_input:
             self.staff_id = staff_id_input.attrs.get('value')
         else:
-            raise LoginException('StaffID not found in login response.')
+            raise LoginError('StaffID not found in login response.')
         self.logged_in = True
 
     def get_timecodes(self):
         if not self.logged_in:
-            raise LoginException('Not logged in.')
+            raise LoginError('Not logged in.')
         next_month_end = date.today() + relativedelta(months=+1, day=31)
         filter_day = next_month_end.strftime('%d-%b-%Y')
         data = {
@@ -172,6 +176,6 @@ class TimesheetAPI:
         error_table = r.html.xpath('//a[@name="ErrorTable"]/following-sibling::table', first=True)
         if error_table:
             errors = self._parse_html_login_errors(error_table)
-            raise LoginException(' '.join(errors))
+            raise WebsiteError(' '.join(errors))
 
         return r
