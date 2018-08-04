@@ -7,6 +7,8 @@ from requests_html import HTMLSession
 from .timesheet import Timesheet
 
 
+TODAY = date.today()
+
 class LoginError(Exception):
     pass
 
@@ -121,7 +123,7 @@ class TimesheetAPI:
     def get_timecodes(self):
         if not self.logged_in:
             raise LoginError('Not logged in.')
-        next_month_end = date.today() + relativedelta(months=+1, day=31)
+        next_month_end = TODAY + relativedelta(months=+1, day=31)
         filter_day = next_month_end.strftime('%d-%b-%Y')
         data = {
             'UserContextID': self.user_context_id,
@@ -138,9 +140,12 @@ class TimesheetAPI:
 
     def get_timesheet(self, start_date=None, end_date=None):
         if start_date is None and end_date is None:
-            today = date.today()
-            start_date = today + relativedelta(day=1, weekday=MO)
-            end_date = today + relativedelta(day=31, weekday=FR(-1))
+            # default to get this week's timesheet (excl. previous month)
+            start_date = max([
+                TODAY + relativedelta(day=1),
+                TODAY + relativedelta(weekday=MO(-1))
+            ])
+            end_date = TODAY + relativedelta(weekday=FR)
         r = self.session.post(self.INPUT_TIME_URL, data={
             'UserContextID': self.user_context_id,
             'StaffID': self.staff_id,

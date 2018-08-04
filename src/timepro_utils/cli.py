@@ -87,5 +87,9 @@ class TimesheetCLI:
         timesheet = api.post_timesheet(timesheet)
 
 
-if __name__ == '__main__':
+def main():
     TimesheetCLI()
+
+
+if __name__ == '__main__':
+    main()

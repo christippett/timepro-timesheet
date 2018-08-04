@@ -285,4 +285,4 @@ class Timesheet:
 
     def json(self):
         date_entries = self.date_entries()
-        json.dumps(dict((k.strftime('%Y-%m-%d'), v) for k, v in date_entries.items()), indent=2)
+        return json.dumps(dict((k.strftime('%Y-%m-%d'), v) for k, v in date_entries.items()), indent=2)
