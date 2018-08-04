@@ -15,6 +15,7 @@ class Timesheet:
     FORM_XPATH_PROJECTS = '//*[contains(@name, "Project_")]'
     FORM_XPATH_TASKS = '//*[contains(@name, "Task_")]'
     FORM_XPATH_TIMES = '//*[contains(@name, "FinishTime_")]'
+    FORM_XPATH_DESCRIPTIONS = '//*[contains(@name, "Description_")]'
     TIMESHEET_FIELD_PATTERN = r'^(?P<entry_type>\w+)_(?P<row_id>\d+)_(?P<column_id>\d+)$'
 
     def __init__(self, customer_options, project_options, task_options, staff_id, user_context_id,
@@ -62,6 +63,8 @@ class Timesheet:
                 entry['project'] = v
             elif entry_type == 'Task':
                 entry['task'] = v
+            elif entry_type == 'Description':
+                entry['description'] = v
             elif entry_type == 'FinishTime':
                 times = entry.get('times', [])
                 hours = float(v) if v != '' else 0
@@ -138,7 +141,8 @@ class Timesheet:
             html.xpath(self.FORM_XPATH_TIMES),
             html.xpath(self.FORM_XPATH_CUSTOMERS),
             html.xpath(self.FORM_XPATH_PROJECTS),
-            html.xpath(self.FORM_XPATH_TASKS)
+            html.xpath(self.FORM_XPATH_TASKS),
+            html.xpath(self.FORM_XPATH_DESCRIPTIONS)
         )
         data = {}
 
