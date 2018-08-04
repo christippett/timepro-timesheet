@@ -184,43 +184,43 @@ class Timesheet:
         """
         Construct dictionary of timesheet entries, with dates (`column_id` indexes) as keys.
         """
-        form_data = self.form_data()
-        date_entries = {}
+        form_data = self._form_data
+        dates = {}
         for k, v in form_data.items():
             m = re.match(self.TIMESHEET_FIELD_PATTERN, k)
             if not m:
                 continue
             entry_type, row_id, column_id = m.groups()
+
+            # Only loop through FinishTime entries to assemble date entries
             if entry_type != 'FinishTime' or v == '0' or not v:
                 continue
             row_id, column_id = int(row_id), int(column_id)
-            date = date_entries.get(column_id, [])
+            date_entries = dates.get(column_id, [])
+
+            # Lookup row details
             row_entry = self.row_entries().get(row_id)
             customer = self.lookup_customer(row_entry.get('customer'))
             project = self.lookup_project(row_entry.get('project'))
             task = self.lookup_task(row_entry.get('task'))
-            entry = {
-                'customer_code': customer.get('customer_code'),
-                'customer_description': customer.get('customer_description'),
-                'project_code': project.get('project_code'),
-                'project_psid': project.get('project_psid'),
-                'project_description': project.get('project_description'),
-                'task_id': task.get('task_id'),
-                'task_description': task.get('task_description'),
-                'hours': float(v) if v != '' else 0
-            }
-            date.append(entry)
-            date_entries[column_id] = date
+            entry = { 'hours': float(v) if v != '' else 0 }
+            entry.update(customer)
+            entry.update(project)
+            entry.update(task)
 
-        # Generate range of dates from start to end date
+            # Add entry under date
+            date_entries.append(entry)
+            dates[column_id] = date_entries
+
+        # Generate range of dates from start to end date (to account for missing dates in between)
         start_date = dateparser(form_data['StartDate'])
         end_date = dateparser(form_data['EndDate'])
         timesheet_dates = generate_date_series(start_date, end_date)
 
-        # Match dates in timesheet period with ordinal index from `date_entries`
+        # Match dates in timesheet period with ordinal index from `dates`
         d = {}
         for i, dt in enumerate(timesheet_dates):
-            d[dt] = date_entries.get(i, [])
+            d[dt] = dates.get(i, [])
         return d
 
     def json(self):
