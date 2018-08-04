@@ -259,7 +259,7 @@ class Timesheet:
             date_entries.append(entry)
             dates[column_id] = date_entries
 
-        # Generate range of dates from start to end date (to account for missing dates in between)
+        # Generate range of dates from start to end date (to account for any missing dates in between)
         start_date = dateparser(form_data['StartDate'])
         end_date = dateparser(form_data['EndDate'])
         timesheet_dates = generate_date_series(start_date, end_date)
