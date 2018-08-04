@@ -10,7 +10,7 @@ Intertec TimePro Utils
 Description
 ===========
 
-Utility for programmatically getting and submitting data to Intertec TimePro (timesheets.com.au)
+Programmatically get and submit timesheet data to Intertec TimePro (timesheets.com.au)
 
 
 Installation
@@ -20,4 +20,53 @@ Install with `pip`:
 
 ``` bash
 pip install timepro-utils
+```
+
+Usage
+=====
+
+CLI
+---
+
+Once installed, you can use the CLI to get your timesheet data as JSON.
+
+``` bash
+$ timepro --u john.doe --p password123 -id CUST | jq
+  {
+    "2018-08-04": [
+      {
+        "customer_code": "EXAMPLE",
+        "customer_description": "Example Company Pty Ltd",
+        "project_code": "EX-123",
+        "project_psid": "EX-123{:}1",
+        "project_description": "EXAMPLE - EX-123 - SOW000 - Important Business Stuff - PO 123",
+        "task_id": null,
+        "task_description": null,
+        "hours": 8
+      }
+    ]
+  }
+```
+
+Python
+------
+
+``` python
+from timepro_utils.api import TimesheetAPI
+
+# Log into timesheets.com.au via the TimesheetAPI class
+api = TimesheetAPI()
+api.login(customer_id='CUST', username='john.doe', password='password123')
+
+# Get timesheet (defaults to current month)
+timesheet = api.get_timesheet()
+
+# Get timesheet for a given date
+timesheet = api.get_timesheet(start_date=date(2018, 6, 1), end_date=date(2018, 6, 25))
+
+# Output timesheet
+timesheet.json()
+timesheet.row_entries()
+timesheet.date_entries()
+
 ```
