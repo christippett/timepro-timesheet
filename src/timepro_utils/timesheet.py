@@ -20,10 +20,7 @@ class Timesheet:
     FORM_XPATH_DESCRIPTIONS = '//*[contains(@name, "Description_")]'
     TIMESHEET_FIELD_PATTERN = r'^(?P<entry_type>\w+)_(?P<row_id>\d+)_(?P<column_id>\d+)$'
 
-    def __init__(self, staff_id, user_context_id, customer_options=None, project_options=None, task_options=None,
-                 html=None, data=None):
-        self.staff_id = staff_id
-        self.user_context_id = user_context_id
+    def __init__(self, html=None, data=None, customer_options=None, project_options=None, task_options=None):
         self._customer_options = customer_options or []
         self._project_options = project_options or []
         self._task_options = task_options or []
@@ -105,7 +102,6 @@ class Timesheet:
         timesheets.com.au servers.
         """
         data = self._form_data.copy()
-        row_count = self.count_entries()
         for k in data.copy().keys():
             m = re.match(self.TIMESHEET_FIELD_PATTERN, k)
             if not m:
@@ -123,16 +119,6 @@ class Timesheet:
                 sbatch_key = 'SBatch_{}_{}'.format(row_id, column_id)
                 if sbatch_key not in data:
                     data[sbatch_key] = ''
-        data.update({
-            'UserContextID': self.user_context_id,
-            'StaffID': self.staff_id,
-            'InputRows': row_count,
-            'Save': '  Save  ',
-            'DataForm': 'Timesheet {}'.format(self.staff_id),
-            'OptionsDisplayed': 'N',
-            'OverrideAction': '',
-            'DeletesPending': ''
-        })
         return data
 
     def extract_form_data_from_dict(self, data):
@@ -175,7 +161,10 @@ class Timesheet:
         # Replace key with row number
         row_entries = dict((i, v[1]) for i, v in enumerate(row_entries.items()))
 
-        form_data = {}
+        form_data = {
+            'StartDate': start_date.strftime('%d-%b-%Y'),
+            'EndDate': end_date.strftime('%d-%b-%Y')
+        }
         for row_id, entry in row_entries.items():
             f = '{}_{}_{}'  #
             form_data.update({
@@ -186,7 +175,7 @@ class Timesheet:
             })
             for column_id, hour in enumerate(entry.get('times', [])):
                 form_data.update({
-                    f.format('FinishTime', row_id, column_id): hour
+                    f.format('FinishTime', row_id, column_id): hour if hour > 0 else ''
                 })
         return form_data
 
@@ -224,15 +213,15 @@ class Timesheet:
             if not m:
                 continue
             entry_type, row_id, column_id = m.groups()
+            # Read-only timesheet can contain extra empty rows that do not need to be included
+            if input_rows and int(row_id) > input_rows:
+                form_data.pop(k)
+                continue
             if entry_type == 'Project':
                 customer_key = 'Customer_{}_{}'.format(row_id, column_id)
                 if customer_key not in form_data:
                     customer = self.lookup_project(v)
                     form_data[customer_key] = customer['customer_code'] if customer else ''
-            elif entry_type == 'FinishTime':
-                # Read-only timesheet can contain extra empty rows that do not need to be included
-                if input_rows and int(row_id) > input_rows:
-                    form_data.pop(k)
         return form_data
 
     def date_entries(self):
