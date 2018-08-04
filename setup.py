@@ -23,7 +23,7 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     entry_points = {
-        'console_scripts': ['timepro=timepro_utils.cli:main'],
+        'console_scripts': ['timepro=timepro_utils.cli:TimesheetCLI'],
     },
     install_requires=INSTALL_REQUIRES,
     classifiers=[
