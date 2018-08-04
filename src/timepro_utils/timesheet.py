@@ -69,10 +69,18 @@ class Timesheet:
                 entry['times'] = times
             entries[row_id] = entry
         # Process times into ordered (based on `column_id`) list of hours
-        for k in entries.keys():
-            times = entries[k]['times']
-            sorted_times = sorted(times, key=lambda t: t[0])
-            entries[k]['times'] = [t[1] for t in sorted_times]
+        for k in entries.copy().keys():
+            customer = entries[k].get('customer', '')
+            project = entries[k].get('project', '')
+            times = entries[k].get('times', [])
+            if times:
+                sorted_times = sorted(times, key=lambda t: t[0])
+                times = [t[1] for t in sorted_times]
+            # Remove rows with no data
+            if (customer == '' and project == '') or sum(times) == 0:
+                entries.pop(k)
+                continue
+            entries[k]['times'] = times
         return entries
 
     def count_entries(self):
@@ -207,4 +215,6 @@ class Timesheet:
 
     def json(self):
         date_entries = self.date_entries()
-        return json.dumps(dict((k.isoformat(), v) for k, v in date_entries.items()))
+        print(
+            json.dumps(dict((k.strftime('%Y-%m-%d'), v) for k, v in date_entries.items()))
+        )
