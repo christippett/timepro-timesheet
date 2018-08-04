@@ -40,7 +40,11 @@ class Timesheet:
 
     def lookup_project(self, project):
         search_key = 'project_psid' if '{:}' in project else 'project_code'
-        projects = [p for p in self._project_options if p[search_key] == project]
+        projects = []
+        for p in self._project_options.copy():
+            p.pop('task_count', None)  # exclude task_count when returning project details
+            if p[search_key] == project:
+                projects.append(p)
         return projects[0] if projects else {}
 
     def lookup_task(self, task):
