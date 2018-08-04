@@ -19,6 +19,7 @@ class TimesheetAPI:
     LOGIN_URL = 'https://www.timesheets.com.au/tplogin/default.asp'
     VIEW_TIMESHEET_URL = 'https://www.timesheets.com.au/tp60/ViewTimeSheet.asp'
     INPUT_TIME_URL = 'https://www.timesheets.com.au/tp60/InputTime.asp'
+    ERROR_TABLE_XPATH = '//a[@name="ErrorTable"]/following-sibling::table'
 
     def __init__(self):
         self.session = HTMLSession()
@@ -89,7 +90,7 @@ class TimesheetAPI:
         r = self.session.post(self.LOGIN_URL, data=data)
 
         # Detect errors
-        error_table = r.html.xpath('//a[@name="ErrorTable"]/following-sibling::table', first=True)
+        error_table = r.html.xpath(self.ERROR_TABLE_XPATH, first=True)
         if error_table:
             errors = self._parse_html_login_errors(error_table)
             raise LoginError(' '.join(errors))
@@ -173,7 +174,7 @@ class TimesheetAPI:
             headers={'Referer': self.INPUT_TIME_URL})
 
         # Detect errors
-        error_table = r.html.xpath('//a[@name="ErrorTable"]/following-sibling::table', first=True)
+        error_table = r.html.xpath(self.ERROR_TABLE_XPATH, first=True)
         if error_table:
             errors = self._parse_html_login_errors(error_table)
             raise WebsiteError(' '.join(errors))
