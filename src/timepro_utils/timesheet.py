@@ -32,7 +32,7 @@ class Timesheet:
         if html:
             self._form_data = self.extract_form_data_from_html(html)
         if data:
-            self._data = data
+            self._form_data = self.extract_form_data_from_dict(data)
 
     def lookup_customer(self, customer):
         customers = [c for c in self._customer_options if c['customer_code'] == customer]
@@ -134,6 +134,53 @@ class Timesheet:
             'DeletesPending': ''
         })
         return data
+
+    def extract_form_data_from_dict(self, data):
+        # Get unique customer/project/task entries, these will become our rows
+        unique_entries = set()
+        for _, entries in data.items():
+            for e in entries:
+                customer = e.get('customer_code')
+                project = e.get('project_psid')
+                task = e.get('task_id') or ''
+                unique_entries.add('{}|{}|{}'.format(customer, project, task))
+
+        # Use lambda to create default entry to avoid later referencing same object
+        default_entry = lambda: dict(customer='', project='', task='', times=[])
+        row_entries = dict((e, default_entry()) for e in unique_entries)
+
+        # Generate range of dates from start to end date (to account for any missing dates in between)
+        start_date = min(data.keys())
+        end_date = max(data.keys())
+        timesheet_dates = generate_date_series(start_date, end_date)
+
+        # Populate row entry, sum hours across multiple days into single row value
+        for dt in timesheet_dates:
+            date_entries = data.get(dt, [])  # list of entries for the given date
+            for key, entry in row_entries.items():
+                # Sum all hours for a single date for the same customer/project/task
+                hours = sum(
+                    [e['hours'] for e in date_entries if '{}|{}|{}'.format(e.get('customer_code'), e.get('project_psid'), e.get('task_id') or '') == key]
+                )
+                entry['times'].append(hours)
+                entry['customer'], entry['project'], entry['task'] = key.split('|')  # populate row keys
+
+        # Replace key with row number
+        row_entries = dict((i, v[1]) for i, v in enumerate(row_entries.items()))
+
+        form_data = {}
+        for row_id, entry in row_entries.items():
+            f = '{}_{}_{}'  #
+            form_data.update({
+                f.format('CustomerCode', row_id, 0): entry.get('customer') or '',
+                f.format('Project', row_id, 0): entry.get('project') or '',
+                f.format('Task', row_id, 0): entry.get('task') or ''
+            })
+            for column_id, hour in enumerate(entry.get('times', [])):
+                form_data.update({
+                    f.format('FinishTime', row_id, column_id): hour
+                })
+        return form_data
 
     def extract_form_data_from_html(self, html):
         """
