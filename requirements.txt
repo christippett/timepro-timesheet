@@ -1,0 +1,9 @@
+requests
+requests-html
+python-dateutil
+
+# Test dependencies
+pytest
+coverage
+pytest-cov
+tox
