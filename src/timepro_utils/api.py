@@ -116,13 +116,14 @@ class TimesheetAPI:
     def get_timecodes(self):
         if not self.logged_in:
             raise LoginException('Not logged in.')
-        today = date.today().strftime('%d-%b-%Y')
+        next_month_end = date.today() + relativedelta(months=+1, day=31)
+        filter_day = next_month_end.strftime('%d-%b-%Y')
         data = {
             'UserContextID': self.user_context_id,
             'StaffID': self.staff_id,
             'Mode': 'Day',
-            'StartDate': today,
-            'EndDate': today
+            'StartDate': filter_day,
+            'EndDate': filter_day
         }
         r = self.session.post(self.INPUT_TIME_URL, data=data)
         customers = self._parse_html_customer_options(r.html)
