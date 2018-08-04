@@ -146,8 +146,32 @@ class TimesheetAPI:
         customer_options, project_options, task_options = self.get_timecodes()
         return Timesheet(
             html=r.html,
-            staff_id=self.staff_id,
-            user_context_id=self.user_context_id,
             customer_options=customer_options,
             project_options=project_options,
             task_options=task_options)
+
+    def post_timesheet(self, timesheet):
+        form_data = timesheet.form_data()
+        row_count = timesheet.count_entries()
+        form_data.update({
+            'UserContextID': self.user_context_id,
+            'StaffID': self.staff_id,
+            'InputRows': row_count,
+            'Save': '%A0%A0Save%A0%A0',
+            'DataForm': 'TimeEntry {}'.format(self.staff_id),  # Important!
+            # 'OptionsDisplayed': 'N',
+            # 'OverrideAction': '',
+            # 'DeletesPending': ''
+        })
+        r = self.session.post(
+            self.INPUT_TIME_URL,
+            data=form_data,
+            headers={'Referer': self.INPUT_TIME_URL})
+
+        # Detect errors
+        error_table = r.html.xpath('//a[@name="ErrorTable"]/following-sibling::table', first=True)
+        if error_table:
+            errors = self._parse_html_login_errors(error_table)
+            raise LoginException(' '.join(errors))
+
+        return r
