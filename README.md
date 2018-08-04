@@ -25,13 +25,15 @@ pip install timepro-utils
 Usage
 =====
 
-CLI
----
+Command line
+------------
+
+**GET data**
 
 Once installed, you can use the CLI to get your timesheet data as JSON.
 
 ``` bash
-$ timepro --u john.doe --p password123 -id CUST | jq
+$ timepro get -c CUST -u john.doe -p password123
   {
     "2018-08-04": [
       {
@@ -46,6 +48,22 @@ $ timepro --u john.doe --p password123 -id CUST | jq
       }
     ]
   }
+```
+
+You can filter the timesheet period by specifying dates for `--start` and `--end`, or by using the `--week` or `--month` flags. By default, the current week's timesheet entries are returned.
+
+**POST data**
+
+Data can be submitted by reading from a JSON file.
+
+``` bash
+$ timepro post -c CUST -u john.doe -p password123 -f timesheet_entries.json
+```
+
+or
+
+``` bash
+$ cat timesheet_entries.json | timepro post -c CUST -u john.doe -p password123
 ```
 
 Python
