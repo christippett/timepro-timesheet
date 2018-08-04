@@ -97,7 +97,7 @@ class Timesheet:
         """
         data = self._form_data.copy()
         row_count = self.count_entries()
-        for k, v in data.copy().items():
+        for k in data.copy().keys():
             m = re.match(self.TIMESHEET_FIELD_PATTERN, k)
             if not m:
                 continue
@@ -141,17 +141,19 @@ class Timesheet:
             html.xpath(self.FORM_XPATH_TASKS)
         )
         data = {}
+
         # Construct data dictionary
         for el in data_elements:
             name = el.attrs.get('name')
+            # form elements can be a select element (drop down) if timesheet is not read-only
             if el.element.tag == 'select':
                 option = el.xpath('//option[@selected]', first=True)
                 value = option.attrs.get('value') if option else ''
             else:
                 value = el.attrs.get('value')
             data[name] = value
-        # Customer form elements not present in read-only timesheet,
-        # we need to lookup `customer_code` from project
+
+        # Customer form elements aren't present in read-only timesheet, we need to lookup `customer_code` from project
         for k, v in data.copy().items():
             m = re.match(self.TIMESHEET_FIELD_PATTERN, k)
             if not m:
@@ -159,12 +161,11 @@ class Timesheet:
             entry_type, row_id, column_id = m.groups()
             if entry_type == 'Project':
                 customer_key = 'Customer_{}_{}'.format(row_id, column_id)
-                customer = self.lookup_project(v)
                 if customer_key not in data:
+                    customer = self.lookup_project(v)
                     data[customer_key] = customer['customer_code'] if customer else ''
             elif entry_type == 'FinishTime':
-                # Read-only timesheet includes extra empty rows that do not need to
-                # be included
+                # Read-only timesheet can contain extra empty rows that do not need to be included
                 if input_rows and int(row_id) > input_rows:
                     data.pop(k)
         return data
