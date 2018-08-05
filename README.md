@@ -1,11 +1,11 @@
 Intertec TimePro Utils
 =============================================================
 
-[![PyPI version](https://img.shields.io/pypi/v/timepro-utils.svg)](https://pypi.python.org/pypi/timepro-utils)
-[![Build status](https://img.shields.io/travis/christippett/timepro-utils.svg)](https://travis-ci.org/christippett/timepro-utils)
-[![Coverage](https://img.shields.io/coveralls/github/christippett/timepro-utils.svg)](https://coveralls.io/github/christippett/timepro-utils?branch=master)
-[![Python versions](https://img.shields.io/pypi/pyversions/timepro-utils.svg)](https://pypi.python.org/pypi/timepro-utils)
-[![Github license](https://img.shields.io/github/license/christippett/timepro-utils.svg)](https://github.com/christippett/timepro-utils)
+[![PyPI version](https://img.shields.io/pypi/v/timepro-timesheet.svg)](https://pypi.python.org/pypi/timepro-timesheet)
+[![Build status](https://img.shields.io/travis/christippett/timepro-timesheet.svg)](https://travis-ci.org/christippett/timepro-timesheet)
+[![Coverage](https://img.shields.io/coveralls/github/christippett/timepro-timesheet.svg)](https://coveralls.io/github/christippett/timepro-timesheet?branch=master)
+[![Python versions](https://img.shields.io/pypi/pyversions/timepro-timesheet.svg)](https://pypi.python.org/pypi/timepro-timesheet)
+[![Github license](https://img.shields.io/github/license/christippett/timepro-timesheet.svg)](https://github.com/christippett/timepro-timesheet)
 
 Description
 ===========
