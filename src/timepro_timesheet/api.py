@@ -23,6 +23,9 @@ class TimesheetAPI:
     INPUT_TIME_URL = 'https://www.timesheets.com.au/tp60/InputTime.asp'
     ERROR_TABLE_XPATH = '//a[@name="ErrorTable"]/following-sibling::table'
 
+    LoginError = LoginError
+    WebsiteError = WebsiteError
+
     def __init__(self):
         self.session = HTMLSession()
         self.user_context_id = None
