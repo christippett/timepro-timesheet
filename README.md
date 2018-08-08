@@ -50,7 +50,7 @@ $ timepro get -c CUST -u john.doe -p password123
   }
 ```
 
-You can filter the timesheet period by specifying dates for `--start` and `--end`, or by using the `--week` or `--month` flags. By default, the current week's timesheet entries are returned.
+You can filter the timesheet period by specifying dates for `--start` and `--end`, or by using the `--this-week`, `--this-month`, `--last-week` or `--last-month` flags. By default, the current week's timesheet entries are returned.
 
 **POST data**
 
