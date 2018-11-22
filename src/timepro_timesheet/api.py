@@ -1,13 +1,13 @@
 import re
-from datetime import datetime, date, timedelta
+from datetime import date
 
 from dateutil.relativedelta import relativedelta, MO, FR
 from requests_html import HTMLSession
 
 from .timesheet import Timesheet
 
-
 TODAY = date.today()
+
 
 class LoginError(Exception):
     pass
