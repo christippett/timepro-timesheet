@@ -1,12 +1,10 @@
-import re
 import itertools
 import json
-from collections import OrderedDict
-from datetime import timedelta
+import re
 
 from dateutil.parser import parse as dateparser
 
-from .utils import generate_date_series, convert_keys_to_dates
+from .utils import generate_date_series, convert_keys_to_dates, convert_time_string_and_minutes_to_hours
 
 
 class Timesheet:
@@ -75,7 +73,7 @@ class Timesheet:
                 entry['descriptions'] = descriptions
             elif entry_type == 'FinishTime':
                 times = entry.get('times', [])
-                hours = float(v) if v != '' else 0
+                hours = convert_time_string_and_minutes_to_hours(v) if v != '' else 0
                 times.append((column_id, hours))
                 entry['times'] = times
             entries[row_id] = entry
@@ -258,7 +256,7 @@ class Timesheet:
             # Lookup row
             row_entry = self.row_entries().get(row_id)
 
-            entry = {'hours': float(v) if v != '' else 0}
+            entry = {'hours': convert_time_string_and_minutes_to_hours(v) if v != '' else 0}
 
             # Check description list is populated (missing/empty when reading historical timesheets)
             descriptions = row_entry.get('descriptions')

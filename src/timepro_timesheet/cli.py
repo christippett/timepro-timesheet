@@ -1,6 +1,6 @@
-import sys
-import json
 import argparse
+import json
+import sys
 from datetime import date
 
 from dateutil.parser import parse as dateparser
@@ -9,15 +9,13 @@ from dateutil.relativedelta import relativedelta, MO, FR
 from .api import TimesheetAPI
 from .timesheet import Timesheet
 
-
 TODAY = date.today()
 
 
 class TimesheetCLI:
-
     def __init__(self):
         parser = argparse.ArgumentParser(
-            description='Programmatically get your timesheet from Intertec TimePro (timesheets.com.au.')
+            description='Programmatically get your timesheet from Intertec TimePro (timesheets.com.au.)')
         parser.add_argument('command', help='Action to run')
         # parse only common arguments, the rest will be parsed per subcommand
         args = parser.parse_args(sys.argv[1:2])
@@ -31,21 +29,29 @@ class TimesheetCLI:
     def _create_parser(self, description):
         parser = argparse.ArgumentParser(description=description)
         login_parameters = parser.add_argument_group('login parameters')
-        login_parameters.add_argument('-c', '--customer', dest='customer', required=True, help="Employer's TimePro Customer ID")
-        login_parameters.add_argument('-u', '--user', dest='username', required=True, help='Username to log into TimePro')
-        login_parameters.add_argument('-p', '--password', dest='password', required=True, help='Password to log into TimePro')
+        login_parameters.add_argument('-c', '--customer', dest='customer', required=True,
+                                      help="Employer's TimePro Customer ID")
+        login_parameters.add_argument('-u', '--user', dest='username', required=True,
+                                      help='Username to log into TimePro')
+        login_parameters.add_argument('-p', '--password', dest='password', required=True,
+                                      help='Password to log into TimePro')
         return parser
 
     def get(self, arg_options):
         parser = self._create_parser(
             description='Get timesheet data from Intertec TimePro')
         get_parameters = parser.add_argument_group('filter options')
-        get_parameters.add_argument('--start', dest='start_date', metavar='START_DATE', help='Start date of timesheet period')
+        get_parameters.add_argument('--start', dest='start_date', metavar='START_DATE',
+                                    help='Start date of timesheet period')
         get_parameters.add_argument('--end', dest='end_date', metavar='END_DATE', help='End date of timesheet period')
-        get_parameters.add_argument('--current-week', dest='current_week', action='store_true', help="Get current week's timesheet")
-        get_parameters.add_argument('--current-month', dest='current_month', action='store_true', help="Get current month's timesheet")
-        get_parameters.add_argument('--last-week', dest='last_week', action='store_true', help="Get last week's timesheet")
-        get_parameters.add_argument('--last-month', dest='last_month', action='store_true', help="Get last month's timesheet")
+        get_parameters.add_argument('--current-week', dest='current_week', action='store_true',
+                                    help="Get current week's timesheet")
+        get_parameters.add_argument('--current-month', dest='current_month', action='store_true',
+                                    help="Get current month's timesheet")
+        get_parameters.add_argument('--last-week', dest='last_week', action='store_true',
+                                    help="Get last week's timesheet")
+        get_parameters.add_argument('--last-month', dest='last_month', action='store_true',
+                                    help="Get last month's timesheet")
 
         # If Saturday or Sunday, treat "last week" as the week just been
         week_offset = 1 if TODAY.weekday() >= 5 else 0
