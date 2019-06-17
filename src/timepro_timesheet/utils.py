@@ -22,17 +22,17 @@ def convert_keys_to_dates(data):
 
 
 def convert_time_string_and_minutes_to_hours(time_string):
-    colon_count = time_string.count(':')
+    colon_count = time_string.count(":")
 
     if colon_count < 1:
         return float(time_string)
     elif colon_count > 1:
         raise ValueError(
-            'expected time_string to be in the format hh:mm or hh.h; got {}'.format(
+            "expected time_string to be in the format hh:mm or hh.h; got {}".format(
                 repr(time_string)
             )
         )
 
-    hours, minutes = [float(x) for x in time_string.split(':')]
+    hours, minutes = [float(x) for x in time_string.split(":")]
 
     return hours + (minutes / 60)
