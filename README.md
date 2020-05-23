@@ -12,6 +12,8 @@ Description
 
 Programmatically get and submit timesheet data to Intertec TimePro (timesheets.com.au)
 
+**NB:** My company no longer uses timesheets.com.au as its timesheeting application, therefore its difficult to impossible for me to guarantee the future compatibility and maintenance of this application. 
+
 
 Installation
 ============
